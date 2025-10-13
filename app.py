@@ -1,6 +1,6 @@
-from tracemalloc import start
 from flask import Flask, render_template, jsonify, current_app, request, abort, json
-
+import random
+from datetime import datetime
 from tag_check import tagMatch, getTags, genTags, genUri, getUri
 
 
@@ -24,7 +24,27 @@ event_timeline = [
   }
 ]
 
+genUri()
+genTags()
 
+@app.route('/api/restart')
+def restart():
+  global active_player
+  global last_card
+  global used_cards
+  global tag_strikes
+  global event_timeline
+  active_player = 0
+  last_card = "forest"
+  used_cards = set("forest")
+  tag_strikes = {}
+  event_timeline = [
+    {
+        'name': starting_card,
+        'url': f"/static/{starting_card}-normal.jpg",
+        'tags' : []
+        }]
+  return render_template('index.html')
 @app.route('/')
 def index():
   return render_template('index.html')
@@ -63,14 +83,19 @@ def api_play():
     abort(406, description="Card Tags Don't Match!")
   
   strike_flag = 0 #set to 1 if no tag has <3 hits
+  unused_tags = []
   for tag in tags:
     if tag in tag_strikes:
-      if tag_strikes[tag] > 3:
-        abort(406, descrption=f"{tag} at 3 strikes!")
-      tag_strikes[tag] += 1
+      if tag_strikes[tag] < 3:
+        tag_strikes[tag] += 1
+        unused_tags.append(tag)
     else:
       tag_strikes[tag] = 1
-
+      unused_tags.append(tag)
+  
+  if len(unused_tags) == 0:
+    abort(406, description=f"{tag} at 3 strikes!")
+  
   last_card = name
   used_cards.add(name)
   active_player = 1 if active_player == 0 else 0
@@ -78,7 +103,7 @@ def api_play():
   event_timeline.append({
     'name': name,
     'uri': getUri(name),
-    'tags': [[tag, tag_strikes[tag]] for tag in tags]
+    'tags': [[tag, tag_strikes[tag]] for tag in unused_tags]
   })
   print(getUri(name))
   return jsonify({'data': event_timeline[time:len(event_timeline)], 'time': len(event_timeline)})
