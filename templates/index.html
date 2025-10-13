@@ -12,10 +12,17 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <title>Document</title>
+    <style>
+        p {margin:0; text-align: center;}
+        div.play {width: 342px; margin: auto;};
+    </style>
+
 </head>
 
 <body>
     <button onclick="javascript:restart()">Restart</button>
+
+    <!-- <button onclick="javascript:updateCard()">Update</button> -->
 
     <form action="javascript:playCard()" id="imageForm">
         <input name="cardName" type="text" list="cardnames">
@@ -26,13 +33,13 @@
         <input name="UID" value="1" type="submit">
     </form> -->
     <div id="UID-div">
-        <input type="button" onclick="javascript:setUID(0)" value="0">
-        <input type="button" onclick="javascript:setUID(1)" value="1">
+        <input type="button" onclick="javascript:setUID(0)" value="User 0">
+        <input type="button" onclick="javascript:setUID(1)" value="User 1">
     </div>
 
     <p id="error"></p>
-    <div id="play-div">
-        <img src="/static/forest-normal.jpg" width="340" height="474" , id="image">
+    <p id="guess-status"></p>
+    <div id="play-div" class="play">
     </div>
     <br>
     <p>The raw json returned is as follows:</p>
@@ -42,14 +49,8 @@
 
 
     <script>
-        var UID;
-        var time = 1;
-
-        // document.onload(function() {
-        //     axios.get("/static/datalist.html").then(function(response){
-        //         document.append(response.data);
-        //     });
-        // });
+        var UID=null;
+        var time = 0;
 
         function setUID(uid) {
             UID = uid;
@@ -101,12 +102,8 @@
                 }
             })
                 .then(function (response) {
-                    //time = response.data.time;
                     document.getElementById("error").innerHTML = "&nbsp;";
                     document.getElementById('rawJsonDiv').innerHTML = JSON.stringify(response.data);
-                    //for (card of response.data.data){
-                    //postCard(card);
-                    //}
                 })
                 .catch(function (error) {
                     console.log("playCard Error!");
@@ -125,6 +122,7 @@
             })
                 .then(function (response) {
                     temp_time = response.data.time;
+                    document.getElementById('guess-status').innerHTML = response.data.guess_status;
                     if (temp_time == time) {
                         return
                     }
@@ -32437,8 +32435,3 @@
         <option value="my forces are innumerable"></option>
     </datalist>
 </body>
-<<<<<<< HEAD </html>
-    =======
-
-</html>
->>>>>>> origin/main

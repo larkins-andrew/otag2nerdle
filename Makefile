@@ -1,8 +1,8 @@
 run:
-	flask run --host=0.0.0.0
+	python3 app.py
 
 run_local:
-	flask run
+	python3 app.py -l
 
 zip:
 
