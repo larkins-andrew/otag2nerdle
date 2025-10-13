@@ -1,4 +1,5 @@
 scripting/
 venv/
 __pycache__/
-static/
+static
+card_data/
