@@ -1,0 +1,4 @@
+scripting/
+venv/
+__pycache__/
+static/
