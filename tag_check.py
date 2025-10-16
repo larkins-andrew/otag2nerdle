@@ -43,7 +43,7 @@ def getUri(card) -> str:
     return tags[card]['uri']
 
 def genDatalist():
-    with open("datalist.html", "w") as f:
+    with open("scripting/datalist.html", "w") as f:
         f.write(f'<datalist id="cardnames">')
         for n in tags.keys():
             f.write(f'<option value="{html.escape(n)}"></option>')
@@ -51,5 +51,5 @@ def genDatalist():
 
 if __name__ == "__main__":
     genUri()
-    genTags()
     genDatalist()
+    
