@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, current_app, request, abort, json
+from flask import Flask, render_template, jsonify, current_app, request, abort, json, redirect
 
 from tag_check import tagMatch, getTags, genTags, genUri, getUri
 import argparse
@@ -42,12 +42,8 @@ def api_play():
     abort(406, description=f"Not active player ({uid}, not {active_player})!")
   
   if time == None or time > len(event_timeline):
-    if time and len(event_timeline) < time:
-      return render_template('index.html')
-    else:
-      abort(406, description=f"No time passed!")
-  
-  
+    return render_template('index.html')
+
   if name == None:
     abort(406, description="No Name Provided!")
   name = name.lower()
@@ -57,14 +53,10 @@ def api_play():
 
   if name in used_cards:
     return bad_guess(name, "Card Already Used!")
-    # guess_status = name
-    # abort(406, description="Card Already Used!")
 
   tags = tagMatch(name, last_card)
   if tags == set():
     return bad_guess(name, "Card Tags Don't Match!")
-    # guess_status = name
-    # abort(406, description="Card Tags Don't Match!")
   
   strike_flag = 0 #set to 1 if no tag has <3 hits
   unused_tags = []
@@ -79,9 +71,7 @@ def api_play():
   
   if len(unused_tags) == 0:
     return bad_guess(name, f"{tag} at 3 strikes!")
-    # guess_status = name
-    # abort(406, description=f"{tag} at 3 strikes!")
-  
+
   last_card = name
   used_cards.add(name)
   active_player = 1 if active_player == 0 else 0
@@ -105,21 +95,23 @@ def api_update():
   time = request.args.get("time")
   time = int(time) if time else None
   if time == None or time > len(event_timeline):
-    if time and len(event_timeline) < time:
-      # abort(406, description=f"Invalid time: {time}, timeline is size {len(event_timeline)}!")
-      return render_template('index.html')
-    else:
-      abort(406, description=f"No time passed!")
-  return jsonify({'data': event_timeline[time:len(event_timeline)],
-                  'time': len(event_timeline),
-                  'guess_status': f"{guess_status}" if guess_status != "" else "&nbsp;",
-                  'strikes': strikes
-                })
+    return jsonify({
+      'data': None,
+      'time': len(event_timeline),
+      'guess_status': f"{guess_status}" if guess_status != "" else "&nbsp;",
+      'strikes': strikes
+    })
+    
+
+  return jsonify({
+    'data': event_timeline[time:len(event_timeline)],
+    'time': len(event_timeline),
+    'guess_status': f"{guess_status}" if guess_status != "" else "&nbsp;",
+    'strikes': strikes
+  })
 
 @app.errorhandler(406)
 def custom406(error):
-  global guess_status
-
   response = error.get_response()
   response.data = json.dumps({
     "code": error.code,

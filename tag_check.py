@@ -8,16 +8,19 @@ tag_dir = "card_data/tags/"
 def genUri():
     global tags
     global form_cards
+
     with open(form_cards) as f:
         card_json = json.load(f)
     for c in card_json:
         name = c["name"].lower()
         uri = c["uri"]
-        tags[name] = {"tags":set(), "uri":uri}
+        uri_crop = c["uri_crop"]
+        tags[name] = {"tags":set(), "uri":uri, "uri_crop":uri_crop}
 
-def genTags() -> None:
+def genTags():
     global tags
     global tag_dir
+
     files = os.listdir(tag_dir)
     for file_name in files:
         with open(os.path.join(tag_dir,file_name), 'r') as f:
@@ -43,6 +46,8 @@ def getUri(card) -> str:
     return tags[card]['uri']
 
 def genDatalist():
+    global tags
+
     with open("scripting/datalist.html", "w") as f:
         f.write(f'<datalist id="cardnames">')
         for n in tags.keys():
@@ -51,5 +56,4 @@ def genDatalist():
 
 if __name__ == "__main__":
     genUri()
-    genDatalist()
-    
+    genDatalist

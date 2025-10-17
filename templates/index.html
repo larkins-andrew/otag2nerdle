@@ -126,6 +126,9 @@
             })
                 .then(function (response) {
                     temp_time = response.data.time;
+                    if (temp_time < time) {
+                        location.reload();
+                    }
                     document.getElementById('guess-status').innerHTML = response.data.guess_status;
                     strike_p = document.getElementById('strike-status');
                     strike_p.innerHTML = "Guesses left: ";
